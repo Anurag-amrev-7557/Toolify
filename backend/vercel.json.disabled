@@ -16,24 +16,6 @@
     "FLASK_ENV": "production"
   }
 }
-{
-  "version": 2,
-  "builds": [
-    {
-      "src": "app.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "app.py"
-    }
-  ],
-  "env": {
-    "FLASK_ENV": "production"
-  }
-}
 
 /*
   NOTE: This file was renamed to `vercel.json.disabled` to prevent Vercel

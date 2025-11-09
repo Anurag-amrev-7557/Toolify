@@ -2,9 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://toolify-backend.vercel.app/api/:path*"
+      "destination": "https://your-backend-url.com/api/:path*"
     }
   ]
-  ,
-  "note": "Replace <your-backend-domain> with your deployed backend URL (for example: https://api.example.com)."
 }
