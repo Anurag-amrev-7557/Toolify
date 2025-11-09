@@ -29,15 +29,31 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set image tags
+        id: set-tags
+        run: |
+          set -euo pipefail
+          REF=${GITHUB_REF:-}
+          SHORT_SHA=${GITHUB_SHA:0:7}
+          OWNER=${GITHUB_REPOSITORY_OWNER}
+          IMAGE_BASE=ghcr.io/${OWNER}/toolify-backend
+          if [[ "$REF" == refs/tags/* ]]; then
+            TAGNAME=${REF#refs/tags/}
+            # When building for a git tag, publish that tag, latest, and short-sha
+            printf "%s:%s\n%s:latest\n%s:%s" "$IMAGE_BASE" "$TAGNAME" "$IMAGE_BASE" "$IMAGE_BASE" "$SHORT_SHA" > image-tags.txt
+          else
+            # For branch builds, publish ci, latest and short-sha
+            printf "%s:ci\n%s:latest\n%s:%s" "$IMAGE_BASE" "$IMAGE_BASE" "$IMAGE_BASE" "$SHORT_SHA" > image-tags.txt
+          fi
+          echo "IMAGE_TAGS=$(cat image-tags.txt)" >> $GITHUB_ENV
+
       - name: Build and push Docker image to GHCR
         id: build
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           file: ./backend/Dockerfile
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/toolify-backend:ci
-            ghcr.io/${{ github.repository_owner }}/toolify-backend:latest
+          tags: ${{ env.IMAGE_TAGS }}
           push: true
           load: false
 
