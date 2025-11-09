@@ -1,14 +1,3 @@
-# Ignore temporary build files and large artifacts that should not be deployed
-temp/
-*.log
-__pycache__/
-*.pyc
-
-# Ignore any locally generated packages or venvs
-venv/
-env/
-build/
-dist/
 temp/
 *.pyc
 __pycache__/

@@ -1,10 +1,1 @@
-# Git ignore for backend temporary files and local artifacts
-temp/
-*.log
-__pycache__/
-*.pyc
-venv/
-env/
-build/
-dist/
 .vercel
