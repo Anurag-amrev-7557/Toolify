@@ -35,10 +35,33 @@ jobs:
           echo "image_size=$IMG" >> $GITHUB_OUTPUT
           echo "$IMG" > image-size.txt
 
-      - name: Upload build logs and image size
+      - name: Run container and test health endpoint
+        run: |
+          set -e
+          # Run container in background
+          docker run -d --name toolify_test -p 5001:5001 toolify-backend:ci || true
+          echo 'Waiting for service to become ready...'
+          for i in $(seq 1 30); do
+            if curl -sS http://localhost:5001/api/health -o /tmp/health_out 2>/dev/null; then
+              echo 'Service responded'
+              break
+            fi
+            sleep 2
+          done
+          # Save outputs
+          cat /tmp/health_out || true
+          docker logs toolify_test > container.log || true
+          docker stop toolify_test || true
+          docker rm toolify_test || true
+          # Persist health and logs
+          cp /tmp/health_out health.txt || true
+
+      - name: Upload build artifacts (image size, Dockerfile, logs)
         uses: actions/upload-artifact@v4
         with:
           name: backend-build-artifacts
           path: |
             image-size.txt
             backend/Dockerfile
+            container.log
+            health.txt
