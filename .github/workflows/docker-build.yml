@@ -1,0 +1,44 @@
+name: Build backend Docker image
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          tags: toolify-backend:ci
+          push: false
+          load: true
+
+      - name: Record image size
+        run: |
+          set -e
+          IMG=$(docker images --format '{{.Repository}}:{{.Tag}} {{.Size}}' | grep 'toolify-backend:ci' || true)
+          echo "image_size=$IMG" >> $GITHUB_OUTPUT
+          echo "$IMG" > image-size.txt
+
+      - name: Upload build logs and image size
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build-artifacts
+          path: |
+            image-size.txt
+            backend/Dockerfile
