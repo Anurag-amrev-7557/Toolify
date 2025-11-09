@@ -1,9 +1,13 @@
-name: Build backend Docker image
+name: Build & publish backend Docker image
 
 on:
   workflow_dispatch:
   push:
     branches: [ main ]
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build:
@@ -18,28 +22,38 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image to GHCR
         id: build
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           file: ./backend/Dockerfile
-          tags: toolify-backend:ci
-          push: false
-          load: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/toolify-backend:ci
+            ghcr.io/${{ github.repository_owner }}/toolify-backend:latest
+          push: true
+          load: false
 
       - name: Record image size
         run: |
           set -e
-          IMG=$(docker images --format '{{.Repository}}:{{.Tag}} {{.Size}}' | grep 'toolify-backend:ci' || true)
+          IMG=$(docker images --format '{{.Repository}}:{{.Tag}} {{.Size}}' | grep 'ghcr.io' || true)
           echo "image_size=$IMG" >> $GITHUB_OUTPUT
           echo "$IMG" > image-size.txt
 
       - name: Run container and test health endpoint
         run: |
           set -e
-          # Run container in background
-          docker run -d --name toolify_test -p 5001:5001 toolify-backend:ci || true
+          # Pull and run the pushed image from GHCR
+          docker pull ghcr.io/${{ github.repository_owner }}/toolify-backend:ci || true
+          docker run -d --name toolify_test -p 5001:5001 ghcr.io/${{ github.repository_owner }}/toolify-backend:ci || true
           echo 'Waiting for service to become ready...'
           for i in $(seq 1 30); do
             if curl -sS http://localhost:5001/api/health -o /tmp/health_out 2>/dev/null; then
