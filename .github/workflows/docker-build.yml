@@ -95,3 +95,68 @@ jobs:
             backend/Dockerfile
             container.log
             health.txt
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull image
+        run: |
+          set -e
+          IMAGE=ghcr.io/${{ github.repository_owner }}/toolify-backend:ci
+          echo "Pulling $IMAGE"
+          docker pull $IMAGE
+
+      - name: Run container
+        run: |
+          set -e
+          IMAGE=ghcr.io/${{ github.repository_owner }}/toolify-backend:ci
+          docker run -d --name toolify_test -p 5001:5001 $IMAGE || true
+          echo 'Waiting for service...'
+          for i in $(seq 1 30); do
+            if curl -sS http://localhost:5001/api/health -o /tmp/health_out 2>/dev/null; then
+              echo 'Service ready'
+              break
+            fi
+            sleep 2
+          done
+
+      - name: Run integration requests
+        run: |
+          set -e
+          # Health
+          curl -sS http://localhost:5001/api/health -o health.json || true
+
+          # Word counter (form data)
+          curl -sS -X POST -F "text=hello world from ci" http://localhost:5001/api/process/word-counter -o word-counter.json || true
+
+          # Base64 encoder
+          curl -sS -X POST -F "text=ci-test" -F "action=encode" http://localhost:5001/api/process/base64-encoder -o base64.json || true
+
+          # Save container logs
+          docker logs toolify_test > container_integration.log || true
+
+      - name: Cleanup
+        run: |
+          docker stop toolify_test || true
+          docker rm toolify_test || true
+
+      - name: Upload integration artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-integration-artifacts
+          path: |
+            health.json
+            word-counter.json
+            base64.json
+            container_integration.log
