@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app.py"
+    }
+  ],
+  "env": {
+    "FLASK_ENV": "production"
+  }
+}
+
+/*
+  NOTE: This file was renamed to `vercel.json.disabled` to prevent Vercel
+  from automatically packaging and deploying the Python backend as a Serverless
+  Function from this repository. The Python dependencies (weasyprint, PyMuPDF,
+  tesseract/poppler-related tools, etc.) can cause the unzipped function size
+  to exceed Vercel's 250 MB limit.
+
+  Recommended options:
+  - Host this `backend/` service on a dedicated host (Render, Railway, Fly.io,
+    AWS/GCP/Azure, or a separate Vercel project with a Docker-based deployment)
+  - Or split the heavy functionality into a separate microservice with smaller
+    dependencies.
+  - After deploying the backend to a separate URL, update the root `vercel.json`
+    rewrites to point at that backend's URL (the repo already contains a rewrite
+    placeholder in the root `vercel.json`).
+
+  If you want me to instead remove this file completely or move `backend/`
+  to another repo, tell me and I can do that.
+*/
