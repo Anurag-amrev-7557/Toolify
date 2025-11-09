@@ -1,10 +1,23 @@
+# Common ignores
+# Node
 node_modules/
-.next/
-*.pyc
+
+# Python
+venv/
+env/
 __pycache__/
-backend/temp/
-.env
-.env.local
-.env.production
+*.py[cod]
+*.egg-info/
+
+# Next.js / build
+.next/
+out/
+dist/
+
+# OS
 .DS_Store
-.vercel
+
+# Env and logs
+.env
+*.log
+
