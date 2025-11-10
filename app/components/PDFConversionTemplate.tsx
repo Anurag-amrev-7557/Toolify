@@ -552,12 +552,12 @@ export default function PDFConversionTemplate({
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <motion.div 
-                className="w-9 h-9 sm:w-9 sm:h-9 rounded-full bg-tranparent border border-black dark:border-white/80 flex items-center justify-center"
+                className="w-9 h-9 rounded-full bg-tranparent border border-black dark:border-white/80 flex items-center justify-center"
                 whileHover={{ rotate: 5, scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400 }}
               >
                 {/* use responsive Tailwind sizing so the svg scales on small screens */}
-                <Icon className="w-5 h-5 sm:w-5 sm:h-5 text-black dark:text-white/80" strokeWidth={2} />
+                <Icon className="w-5 h-5 text-black dark:text-white/80" strokeWidth={2} />
               </motion.div>
               <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">{toolName}</h1>
             </div>
