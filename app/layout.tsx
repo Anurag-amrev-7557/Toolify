@@ -5,7 +5,8 @@ import { ThemeProvider } from './context/ThemeContext'
 import dynamic from 'next/dynamic'
 
 // Service worker registration uses the browser API (navigator) — load only on the client
-const ServiceWorkerRegistration = dynamic(() => import('./components/ServiceWorkerRegistration'), { ssr: false })
+// Import the explicit client-only file to avoid server-side resolution problems
+const ServiceWorkerRegistration = dynamic(() => import('./components/ServiceWorkerRegistration.client'), { ssr: false })
 
 export const metadata = {
   title: 'Toolify',
