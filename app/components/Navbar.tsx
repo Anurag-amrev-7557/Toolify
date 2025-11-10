@@ -273,8 +273,13 @@ export default memo(function Navbar() {
               </div>
               {/* Use an overflow-hidden reveal wrapper so the input's text doesn't get scaled — we animate the wrapper width */}
               <div className="flex justify-center">
-                <div className="relative w-[600px]">
-                  <motion.div style={{ width: searchWidth }} className="overflow-hidden rounded-full mx-auto">
+                {/* Let the animated wrapper control the width. Use full width inside so the input shrinks when navbar is at top. */}
+                <div className="relative w-full max-w-[600px]">
+                  <motion.div
+                    style={{ width: searchWidth, transformOrigin: 'center' }}
+                    className="overflow-hidden rounded-full mx-auto will-change-[width,transform]"
+                    transition={{ type: 'spring', stiffness: 380, damping: 36, mass: 0.35 }}
+                  >
                     <motion.input
                       type="text"
                       placeholder={displayedText}
@@ -282,7 +287,7 @@ export default memo(function Navbar() {
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onFocus={() => setSearchFocused(true)}
                       style={{ height: searchHeight }}
-                      className="w-[600px] pl-9 pr-4 rounded-full border border-gray-400 bg-white/70 backdrop-blur-sm text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 transition-all duration-300"
+                      className="w-full pl-9 pr-4 rounded-full border border-gray-400 bg-white/70 backdrop-blur-sm text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 transition-all duration-300"
                     />
                   </motion.div>
                 </div>
