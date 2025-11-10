@@ -22,6 +22,15 @@ body {
   }
 }
 
+/* Utility to opt-out of the global theme transition rules for specific
+   elements (useful for small UI chrome that should update instantly
+   when the theme toggles, e.g. the hero badge or mobile hamburger). */
+.no-theme-transition,
+.no-theme-transition * {
+  transition: none !important;
+  animation: none !important;
+}
+
 /* Ensure light-mode 'bg-gray-50' is pure white for tools pages and similar sections */
 .bg-gray-50 {
   background-color: #ffffff;

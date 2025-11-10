@@ -65,7 +65,7 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-12 sm:pt-12 lg:pt-16 pb-8 sm:pb-16 lg:pb-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <div className="text-center sm:text-left">
-            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-700 mb-4 sm:mb-6 lg:mb-8 shadow-sm">
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-700 mb-4 sm:mb-6 lg:mb-8 shadow-sm no-theme-transition">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
               <span className="whitespace-nowrap">35+ tools • 100% free</span>
             </div>

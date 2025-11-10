@@ -419,7 +419,7 @@ export default memo(function Navbar() {
               <span className="sr-only">Toggle theme</span>
             </motion.button>
             <button ref={menuButtonRef} onClick={() => setMobileOpen(!mobileOpen)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 hover:bg-gray-100 transition-all duration-300 focus:outline-none focus:ring-0"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 hover:bg-gray-100 transition-all duration-300 focus:outline-none focus:ring-0 no-theme-transition"
               aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={mobileOpen}
             >
@@ -451,7 +451,7 @@ export default memo(function Navbar() {
                 <div className="flex items-center justify-between p-4">
                   <div className="font-semibold text-gray-900">Menu</div>
                   <button ref={closeButtonRef} onClick={handleClose}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 hover:bg-gray-100 transition-all duration-300 focus:outline-none focus:ring-0"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 hover:bg-gray-100 transition-all duration-300 focus:outline-none focus:ring-0 no-theme-transition"
                     aria-label="Close menu"
                   >
                     <X size={18} strokeWidth={1.5} />
