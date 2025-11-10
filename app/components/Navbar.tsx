@@ -81,6 +81,23 @@ export default memo(function Navbar() {
   const closeButtonRef = useRef<HTMLButtonElement | null>(null)
   const shouldReduceMotion = useReducedMotion()
 
+  // variants for popping other navbar items in/out when user scrolls
+  const popVariants = useMemo(() => {
+    if (shouldReduceMotion) {
+      return {
+        in: { opacity: 1, scale: 1, y: 0 },
+        out: { opacity: 0, scale: 1, y: 0 },
+      }
+    }
+    return {
+      in: { opacity: 1, scale: 1, y: 0 },
+      // stronger shrink + lift for a noticeable pop-out
+      out: { opacity: 0, scale: 0.8, y: -10 },
+    }
+  }, [shouldReduceMotion])
+  // make the spring bouncier for pop-in / pop-out
+  const popTransition = { type: 'spring' as const, stiffness: 700, damping: 20, mass: 0.28, bounce: 0.6 }
+
   const { scrollY } = useScroll()
   const scrollProgress = useTransform(scrollY, [0, SCROLL_THRESHOLD], [0, 1])
   const progress = useSpring(scrollProgress, SCROLL_CONFIG)
@@ -88,7 +105,7 @@ export default memo(function Navbar() {
   const radius = useTransform(progress, [0, 1], [20, 999])
   const pad = useTransform(progress, [0, 1], [24, 12])
   const bg = useTransform(progress, [0, 1], ['rgba(255,255,255,0.0)', 'rgba(255,255,255,0.70)'])
-  const shadow = useTransform(progress, [0, 1], ['0 0 0 rgba(0,0,0,0)', '0 10px 30px rgba(0,0,0,0.12)'])
+  // Removed dynamic shadow transform - navbar should not show any box shadow
   const borderOpacity = useTransform(progress, [0, 1], [0, 1])
   const ringOpacity = useTransform(progress, [0, 1], [0, 1])
 
@@ -184,8 +201,17 @@ export default memo(function Navbar() {
   const authOpacity = useTransform(progress, [0, 1], [1, 0])
   const containerOpacity = useTransform(progress, [0, 1], [1, 0])
   const searchWidth = useSpring(useTransform(progress, [0, 1], [448, 600]), SCROLL_CONFIG)
-  const searchHeight = useSpring(useTransform(progress, [0, 1], [40, 52]), SCROLL_CONFIG)
-  const isScrolled = scrollY.get() > SCROLL_THRESHOLD
+  // keep search height constant to avoid perceived shrink/growth — match scrolled state (52px)
+  const searchHeight = useSpring(useTransform(progress, [0, 1], [44, 44]), SCROLL_CONFIG)
+  // avoid calling scrollY.get() during render (causes sync reads and potential layout thrash)
+  const [isScrolled, setIsScrolled] = useState(false)
+  useEffect(() => {
+    // update isScrolled reactively when scrollY changes
+    const unsub = scrollY.onChange((v) => setIsScrolled(v > SCROLL_THRESHOLD))
+    // initialize
+    setIsScrolled(scrollY.get() > SCROLL_THRESHOLD)
+    return () => unsub()
+  }, [scrollY])
 
   return (
     <MotionConfig transition={{ duration: 0.15 }}>
@@ -203,16 +229,23 @@ export default memo(function Navbar() {
       </AnimatePresence>
       <header className="sticky top-4 z-40 w-full">
         <motion.div
-          style={{ borderRadius: radius, boxShadow: searchFocused && isScrolled ? 'none' : shadow, paddingLeft: pad, paddingRight: pad }}
-          className="mx-auto max-w-7xl h-14 flex items-center rounded-full justify-between relative"
+          className="mx-auto max-w-7xl h-14 flex items-center rounded-full justify-between relative px-4 md:px-6"
         >
-          <motion.div aria-hidden style={{ opacity: useTransform(progress, [0, 1], [borderOpacity.get(), 0]), backgroundColor: bg }}
-            className="pointer-events-none absolute inset-0 rounded-[inherit] border border-gray-300 backdrop-blur-md" />
-          <motion.div aria-hidden style={{ opacity: useTransform(progress, [0, 1], [ringOpacity.get(), 0]) }}
-            className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-black/5" />
+          {/* No border, ring, or blur on the navbar container */}
+          {/* Remove navbar background - keep overlays transparent to avoid visual background */}
+          <motion.div aria-hidden style={{ opacity: 0, backgroundColor: 'transparent' }}
+            className="pointer-events-none absolute inset-0 rounded-[inherit]" />
+          <motion.div aria-hidden style={{ opacity: 0 }}
+            className="pointer-events-none absolute inset-0 rounded-[inherit]" />
 
-          <motion.div style={{ opacity: logoOpacity }}>
-            <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-all duration-300 flex-shrink-0">
+          <motion.div
+            initial={false}
+            animate={isScrolled ? 'out' : 'in'}
+            variants={popVariants}
+            transition={popTransition}
+            className="flex-shrink-0"
+          >
+            <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-all duration-300">
               <motion.div style={{ scale: useTransform(progress, [0, 1], [1, 0.98]) }}>
                 <Wrench size={24} className="text-gray-900" strokeWidth={2} />
               </motion.div>
@@ -230,23 +263,30 @@ export default memo(function Navbar() {
               <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
                 <motion.div
                   animate={{
-                    scale: searchFocused ? [1, 1.2, 1] : 1,
-                    rotate: searchFocused ? [0, 15, -15, 0] : 0
+                    scale: searchFocused ? [1, 1.08, 1] : 1,
+                    rotate: searchFocused ? [0, 8, -8, 0] : 0
                   }}
-                  transition={{ duration: 0.5 }}
+                  transition={{ duration: 0.45 }}
                 >
                   <Search className="text-gray-900" size={17} strokeWidth={2.5} />
                 </motion.div>
               </div>
-              <motion.input
-                type="text"
-                placeholder={displayedText}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setSearchFocused(true)}
-                style={{ height: searchHeight }}
-                className="w-full pl-9 pr-4 rounded-full border border-gray-400 bg-white/70 backdrop-blur-sm text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:ring-offset-0 focus:border-gray-900 transition-all duration-300"
-              />
+              {/* Use an overflow-hidden reveal wrapper so the input's text doesn't get scaled — we animate the wrapper width */}
+              <div className="flex justify-center">
+                <div className="relative w-[600px]">
+                  <motion.div style={{ width: searchWidth }} className="overflow-hidden rounded-full mx-auto">
+                    <motion.input
+                      type="text"
+                      placeholder={displayedText}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onFocus={() => setSearchFocused(true)}
+                      style={{ height: searchHeight }}
+                      className="w-[600px] pl-9 pr-4 rounded-full border border-gray-400 bg-white/70 backdrop-blur-sm text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 transition-all duration-300"
+                    />
+                  </motion.div>
+                </div>
+              </div>
             </div>
             <AnimatePresence>
               {searchFocused && filteredTools.length > 0 && (
@@ -278,7 +318,13 @@ export default memo(function Navbar() {
             </AnimatePresence>
           </motion.div>
 
-          <motion.div style={{ opacity: authOpacity }} className="hidden md:flex items-center gap-3 flex-shrink-0">
+          <motion.div
+            initial={false}
+            animate={isScrolled ? 'out' : 'in'}
+            variants={popVariants}
+            transition={popTransition}
+            className="hidden md:flex items-center gap-3 flex-shrink-0"
+          >
             <motion.button
               onClick={toggleTheme}
               whileHover={{ scale: 1.05 }}
@@ -320,7 +366,13 @@ export default memo(function Navbar() {
             </Link>
           </motion.div>
 
-          <div className="md:hidden flex items-center gap-2 flex-shrink-0">
+          <motion.div
+            initial={false}
+            animate={isScrolled ? 'out' : 'in'}
+            variants={popVariants}
+            transition={popTransition}
+            className="md:hidden flex items-center gap-2 flex-shrink-0"
+          >
             <motion.button
               onClick={toggleTheme}
               whileHover={{ scale: 1.05 }}
@@ -359,7 +411,7 @@ export default memo(function Navbar() {
             >
               {mobileOpen ? <X size={18} strokeWidth={1.5} /> : <Menu size={18} strokeWidth={1.5} />}
             </button>
-          </div>
+          </motion.div>
         </motion.div>
 
         <AnimatePresence mode="wait">

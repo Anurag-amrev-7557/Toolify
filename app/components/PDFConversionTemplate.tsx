@@ -637,7 +637,7 @@ export default function PDFConversionTemplate({
             >
               {/* Left Column - PDF Preview */}
               <div className="bg-white rounded-2xl border border-gray-300 shadow-sm overflow-hidden h-full flex flex-col">
-                <div className="border-b border-gray-200 px-6 py-4 bg-white">
+                <div className="px-6 py-4 bg-white">
                   <div className="flex items-center gap-2 w-full">
                     <div className="flex items-center gap-2">
                       <Eye size={16} className="text-gray-600" />

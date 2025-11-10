@@ -8,6 +8,20 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Ensure light-mode 'bg-gray-50' is pure white for tools pages and similar sections */
+.bg-gray-50 {
+  background-color: #ffffff;
+}
+
+/* Remove bottom border under left-column card headers on tool pages
+   Targets header elements with the utility class `border-b` inside the
+   left column (.lg:col-span-2) of pages that use .min-h-screen (tool pages).
+   Uses !important to override inline Tailwind utility ordering when needed. */
+.min-h-screen .lg\:col-span-2 .border-b {
+  border-bottom-width: 0 !important;
+  border-bottom-color: transparent !important;
+}
+
 .dark {
   background-color: #000000;
   color: #f5f5f5;
