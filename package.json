@@ -12,6 +12,8 @@
     "lucide-react": "^0.553.0",
     "mammoth": "^1.11.0",
     "next": "^14.0.0",
+  "next-pwa": "latest",
+  "@resvg/resvg-js": "latest",
     "qrcode": "^1.5.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
