@@ -13,19 +13,19 @@ export default function AboutPage() {
   ]
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white dark:bg-black">
       {/* Hero */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 scale-[110%]">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-xs font-medium mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 dark:text-black rounded-full bg-emerald-50 text-emerald-600 text-xs font-medium mb-6">
               <Sparkles size={14} /> Built for speed & privacy
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight mb-4">
+            <h1 className="text-4xl sm:text-5xl md:text-5xl font-bold text-gray-900 leading-tight mb-4">
               Powerful web utilities,
               <br /> designed for real work.
             </h1>
-            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mb-6">
+            <p className="text-base sm:text-lg text-gray-500 max-w-2xl mb-6">
               From PDFs to images and quick data tools — Toolify provides an elegant, modern toolkit that helps professionals and creators streamline repetitive tasks. No clutter, no nags, just results.
             </p>
 
@@ -40,14 +40,14 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl overflow-hidden bg-gray-50 flex items-center justify-center p-8">
+          <div className="rounded-2xl overflow-hidden flex items-center justify-center p-8">
             <img src="/hero.webp" alt="Toolbox illustration" className="w-72 h-72 object-contain" />
           </div>
         </div>
       </section>
 
       {/* Why / Principles */}
-      <section id="why" className="bg-white border-t border-gray-100">
+      <section id="why" className="border-t border-gray-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="flex flex-col gap-4">
@@ -111,7 +111,7 @@ export default function AboutPage() {
       </section>
 
       {/* Team / Story */}
-      <section className="bg-gray-50 border-t border-gray-100">
+      <section className="border-t border-gray-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>

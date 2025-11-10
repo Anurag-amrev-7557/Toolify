@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import { Upload, Download, Loader2, CheckCircle2, FileText, Info, Sparkles, X, Eye, Plus, ArrowUpDown, GripVertical } from 'lucide-react'
 import * as Icons from 'lucide-react'
-import { motion, AnimatePresence, Reorder } from 'framer-motion'
+import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion'
 import { API_URL } from '../lib/config'
 
 interface PDFConversionTemplateProps {
@@ -182,6 +182,7 @@ export default function PDFConversionTemplate({
   const [splitError, setSplitError] = useState<string | null>(null)
   // organize-specific state
   const [pageOrder, setPageOrder] = useState<number[]>([])
+  const [isMobile, setIsMobile] = useState(false)
 
   // pdf-to-jpg options
   const [imgFormat, setImgFormat] = useState<'jpg' | 'png'>('jpg')
@@ -239,6 +240,78 @@ export default function PDFConversionTemplate({
       setPageOrder(newOrder)
     }
   }
+
+  useEffect(() => {
+    const check = () => setIsMobile(typeof window !== 'undefined' ? window.innerWidth < 640 : false)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
+  function MobileImageReorderItem({ img, idx, setActiveImageIndex, setImageFiles }: { img: ImageFile, idx: number, setActiveImageIndex: (i: number) => void, setImageFiles: (fn: any) => void }) {
+    const controls = useDragControls()
+    return (
+      <Reorder.Item value={img} dragListener={false} dragControls={controls}>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, x: -50 }}
+          layout
+          transition={{ layout: { type: 'spring', stiffness: 500, damping: 40 } as any }}
+          className="flex items-center gap-4 px-6 py-3 hover:bg-gray-50 dark:hover:bg-black-700 transition-colors"
+          style={{ touchAction: 'pan-y' }}
+        >
+          <div className="p-2 rounded-md touch-manipulation"
+            onPointerDown={(e: any) => controls.start(e)}
+            onMouseDown={(e: any) => controls.start(e)}
+            onTouchStart={(e: any) => controls.start(e)}
+            style={{ touchAction: 'none' }}
+            aria-hidden
+          >
+            <GripVertical size={16} className="text-gray-400 dark:text-gray-300" />
+          </div>
+          <div className="w-10 h-10 rounded-md overflow-hidden bg-gray-100 dark:bg-black flex items-center justify-center flex-shrink-0">
+            {img.preview ? (
+              <img src={img.preview} alt={img.name} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-xs text-gray-500 dark:text-gray-400">No preview</div>
+            )}
+          </div>
+          <div className="flex-1 min-w-0" onClick={() => setActiveImageIndex(idx)}>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{img.name}</p>
+              {img.status !== 'done' && !img.uploadStatus && (
+                <Loader2 size={14} className="text-gray-400 animate-spin" />
+              )}
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{img.size}</p>
+
+            {img.uploadStatus ? (
+              <div className="mt-2 w-full">
+                <div className="w-full h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                  <div className={`h-full ${img.uploadStatus === 'failed' ? 'bg-red-500' : 'bg-green-600'} dark:bg-green-400`} style={{ width: `${img.uploadProgress || 0}%` }} />
+                </div>
+                <div className="text-xs text-gray-400 mt-1 dark:text-gray-300">{img.uploadStatus === 'failed' ? 'Upload failed' : `${img.uploadProgress || 0}%`}</div>
+              </div>
+            ) : img.status !== 'done' ? (
+              <div className="mt-2 w-full">
+                <div className="w-full h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                  <div className="h-full bg-blue-600 dark:bg-blue-400" style={{ width: `${img.progress || 0}%` }} />
+                </div>
+                <div className="text-xs text-gray-400 mt-1 dark:text-gray-300">{img.progress ? `${img.progress}%` : 'Preparing...'}</div>
+              </div>
+            ) : null}
+          </div>
+          <div className="flex items-center gap-2 ml-auto">
+            <span className="text-xs font-medium text-gray-400 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">#{idx + 1}</span>
+            <button onClick={() => { if (img.preview) try { URL.revokeObjectURL(img.preview) } catch(e){}; setImageFiles((prev: ImageFile[]) => prev.filter(p => p.id !== img.id)); setActiveImageIndex(0); }} className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg"><X size={16} className="text-gray-600 dark:text-gray-200" /></button>
+          </div>
+        </motion.div>
+      </Reorder.Item>
+    )
+  }
+
+  
 
   const isPdfPrimary = !!file && file.type === 'application/pdf'
   const primaryName = hasImageFiles ? (imageFiles[activeImageIndex]?.name || '') : (file?.name || '')
@@ -1007,7 +1080,17 @@ export default function PDFConversionTemplate({
                     <Reorder.Group axis="y" values={imageFiles} onReorder={setImageFiles} className="divide-y divide-gray-100 dark:divide-gray-800 max-h-[26rem] overflow-y-auto scrollbar-hide">
                       {imageFiles.map((img, idx) => (
                         <Reorder.Item key={img.id} value={img}>
-                          <div className="flex items-center gap-4 px-6 py-3 hover:bg-gray-50 dark:hover:bg-black-700 transition-colors cursor-grab active:cursor-grabbing">
+                          <motion.div
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, x: -50 }}
+                            layout
+                            transition={{ layout: { type: 'spring', stiffness: 500, damping: 40 } as any }}
+                            className="flex items-center gap-4 px-6 py-3 hover:bg-gray-50 dark:hover:bg-black-700 transition-colors cursor-grab active:cursor-grabbing"
+                          >
+                            <div className="w-6 h-6 flex items-center justify-center text-gray-400 dark:text-gray-300 mr-3">
+                              <GripVertical size={16} />
+                            </div>
                             <div className="w-10 h-10 rounded-md overflow-hidden bg-gray-100 dark:bg-black flex items-center justify-center flex-shrink-0">
                               {img.preview ? (
                                 <img src={img.preview} alt={img.name} className="w-full h-full object-cover" />
@@ -1019,8 +1102,8 @@ export default function PDFConversionTemplate({
                               <div className="flex items-center gap-2">
                                 <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{img.name}</p>
                                 {img.status !== 'done' && !img.uploadStatus && (
-                                    <Loader2 size={14} className="text-gray-400 animate-spin" />
-                                  )}
+                                  <Loader2 size={14} className="text-gray-400 animate-spin" />
+                                )}
                               </div>
                               <p className="text-xs text-gray-500 dark:text-gray-400">{img.size}</p>
 
@@ -1040,11 +1123,11 @@ export default function PDFConversionTemplate({
                                 </div>
                               ) : null}
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 ml-auto">
                               <span className="text-xs font-medium text-gray-400 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">#{idx + 1}</span>
                               <button onClick={() => { if (img.preview) try { URL.revokeObjectURL(img.preview) } catch(e){}; setImageFiles(prev => prev.filter(p => p.id !== img.id)); setActiveImageIndex(0); }} className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg"><X size={16} className="text-gray-600 dark:text-gray-200" /></button>
                             </div>
-                          </div>
+                          </motion.div>
                         </Reorder.Item>
                       ))}
                     </Reorder.Group>

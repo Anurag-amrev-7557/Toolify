@@ -285,16 +285,18 @@ def process_tool(tool):
             if mode == 'count':
                 return jsonify({'pages': total_pages})
             if mode == 'all':
+                # Create a ZIP of individual pages without writing per-page temp files to disk.
+                # This uses an in-memory buffer for each page and writes directly into the ZIP.
+                # Reduces disk I/O and speeds up processing for large PDFs.
                 zip_path = os.path.join(UPLOAD_FOLDER, 'split-pages.zip')
-                with zipfile.ZipFile(zip_path, 'w') as zipf:
+                with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
                     for i in range(total_pages):
                         writer = PdfWriter()
                         writer.add_page(reader.pages[i])
-                        pdf_path = os.path.join(UPLOAD_FOLDER, f'page_{i+1}.pdf')
-                        with open(pdf_path, 'wb') as f:
-                            writer.write(f)
-                        zipf.write(pdf_path, f'page_{i+1}.pdf')
-                        os.remove(pdf_path)
+                        pdf_bytes = io.BytesIO()
+                        writer.write(pdf_bytes)
+                        pdf_bytes.seek(0)
+                        zipf.writestr(f'page_{i+1}.pdf', pdf_bytes.read())
                 return send_file(zip_path, as_attachment=True)
             elif mode == 'range':
                 try:
