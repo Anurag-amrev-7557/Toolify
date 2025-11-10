@@ -1337,7 +1337,7 @@ export default function PDFConversionTemplate({
                         transition={{ type: "spring", stiffness: 300, delay: 0.1 }}
                         className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-900 flex items-center justify-center"
                       >
-                        <CheckCircle2 size={32} className="text-white dark:text-white" strokeWidth={2} />
+                        <CheckCircle2 size={32} className="text-white dark:text-black" strokeWidth={2} />
                       </motion.div>
                       <h3 className="text-xl font-bold text-gray-900 text-center mb-2">Success!</h3>
                       <p className="text-sm text-gray-600 text-center mb-6">Your file has been converted successfully</p>
@@ -1345,7 +1345,7 @@ export default function PDFConversionTemplate({
                       <div className="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-300">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-lg bg-gray-900 flex items-center justify-center flex-shrink-0">
-                            <Icon size={20} className="text-white dark:text-white" strokeWidth={2} />
+                            <Icon size={20} className="text-white dark:text-black" strokeWidth={2} />
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold text-gray-900 truncate">{downloadName}</p>
