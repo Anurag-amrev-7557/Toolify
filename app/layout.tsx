@@ -2,7 +2,10 @@ import './globals.css'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import { ThemeProvider } from './context/ThemeContext'
-import ServiceWorkerRegistration from './components/ServiceWorkerRegistration'
+import dynamic from 'next/dynamic'
+
+// Service worker registration uses the browser API (navigator) — load only on the client
+const ServiceWorkerRegistration = dynamic(() => import('./components/ServiceWorkerRegistration'), { ssr: false })
 
 export const metadata = {
   title: 'Toolify',
