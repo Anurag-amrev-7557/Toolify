@@ -107,9 +107,9 @@ export default function Home() {
 
       {/* Tools Grid */}
       <section id="tools" className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-24">
-        <div className="mb-8 sm:mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">Available Tools</h2>
-          <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">Choose from our collection of productivity utilities</p>
+        <div className="mb-6 sm:mb-12 text-center sm:text-left">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 sm:mb-4">Available Tools</h2>
+          <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-8 max-w-xl mx-auto sm:mx-0">Choose from our collection of productivity utilities</p>
           
           {/* Category Filter */}
           <div className="-mx-4 sm:mx-0 px-4 sm:px-0 overflow-x-auto scrollbar-hide">

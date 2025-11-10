@@ -95,8 +95,8 @@ export default memo(function Navbar() {
       out: { opacity: 0, scale: 0.8, y: -10 },
     }
   }, [shouldReduceMotion])
-  // make the spring bouncier for pop-in / pop-out
-  const popTransition = { type: 'spring' as const, stiffness: 700, damping: 20, mass: 0.28, bounce: 0.6 }
+  // smoother spring for pop-in / pop-out (reduced bounce, higher damping)
+  const popTransition = { type: 'spring' as const, stiffness: 340, damping: 32, mass: 0.35, bounce: 0.15 }
 
   const { scrollY } = useScroll()
   const scrollProgress = useTransform(scrollY, [0, SCROLL_THRESHOLD], [0, 1])
@@ -214,7 +214,8 @@ export default memo(function Navbar() {
   }, [scrollY])
 
   return (
-    <MotionConfig transition={{ duration: 0.15 }}>
+    // slightly longer default duration for children to feel smoother
+    <MotionConfig transition={{ duration: 0.2 }}>
       <AnimatePresence>
         {searchFocused && isScrolled && (
           <motion.div
@@ -263,10 +264,10 @@ export default memo(function Navbar() {
               <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
                 <motion.div
                   animate={{
-                    scale: searchFocused ? [1, 1.08, 1] : 1,
-                    rotate: searchFocused ? [0, 8, -8, 0] : 0
+                    scale: searchFocused ? [1, 1.06, 1] : 1,
+                    rotate: searchFocused ? [0, 6, -6, 0] : 0
                   }}
-                  transition={{ duration: 0.45 }}
+                  transition={{ duration: 0.35, ease: 'easeOut' }}
                 >
                   <Search className="text-gray-900" size={17} strokeWidth={2.5} />
                 </motion.div>
@@ -278,7 +279,7 @@ export default memo(function Navbar() {
                   <motion.div
                     style={{ width: searchWidth, transformOrigin: 'center' }}
                     className="overflow-hidden rounded-full mx-auto will-change-[width,transform]"
-                    transition={{ type: 'spring', stiffness: 380, damping: 36, mass: 0.35 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 40, mass: 0.35, bounce: 0.18 }}
                   >
                     <motion.input
                       type="text"
@@ -331,19 +332,22 @@ export default memo(function Navbar() {
             className="hidden md:flex items-center gap-3 flex-shrink-0"
           >
             <motion.button
+              type="button"
               onClick={toggleTheme}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white hover:border-gray-900 transition-all shadow-sm hover:shadow-md overflow-hidden"
-              aria-label="Toggle theme"
+              aria-pressed={theme === 'dark'}
+              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+              className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white hover:border-gray-900 transition-all shadow-sm hover:shadow-md overflow-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-900/30"
             >
               <AnimatePresence mode="wait">
                 {theme === 'light' ? (
                   <motion.div
                     key="moon"
-                    initial={{ y: -20, opacity: 0, rotate: -90 }}
-                    animate={{ y: 0, opacity: 1, rotate: 0 }}
-                    exit={{ y: 20, opacity: 0, rotate: 90 }}
+                    initial={shouldReduceMotion ? { y: -20, opacity: 0 } : { y: -20, opacity: 0, rotate: -90 }}
+                    animate={shouldReduceMotion ? { y: 0, opacity: 1 } : { y: 0, opacity: 1, rotate: 0 }}
+                    exit={shouldReduceMotion ? { y: 20, opacity: 0 } : { y: 20, opacity: 0, rotate: 90 }}
                     transition={{ duration: 0.2 }}
                   >
                     <Moon size={16} strokeWidth={2} className="text-gray-900" />
@@ -351,15 +355,16 @@ export default memo(function Navbar() {
                 ) : (
                   <motion.div
                     key="sun"
-                    initial={{ y: -20, opacity: 0, rotate: -90 }}
-                    animate={{ y: 0, opacity: 1, rotate: 0 }}
-                    exit={{ y: 20, opacity: 0, rotate: 90 }}
+                    initial={shouldReduceMotion ? { y: -20, opacity: 0 } : { y: -20, opacity: 0, rotate: -90 }}
+                    animate={shouldReduceMotion ? { y: 0, opacity: 1 } : { y: 0, opacity: 1, rotate: 0 }}
+                    exit={shouldReduceMotion ? { y: 20, opacity: 0 } : { y: 20, opacity: 0, rotate: 90 }}
                     transition={{ duration: 0.2 }}
                   >
                     <Sun size={16} strokeWidth={2} className="text-gray-900" />
                   </motion.div>
                 )}
               </AnimatePresence>
+              <span className="sr-only">Toggle theme</span>
             </motion.button>
             <Link href="/login" className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">
               <LogIn size={16} strokeWidth={1.5} />
@@ -379,19 +384,22 @@ export default memo(function Navbar() {
             className="md:hidden flex items-center gap-2 flex-shrink-0"
           >
             <motion.button
+              type="button"
               onClick={toggleTheme}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white hover:border-gray-900 transition-all shadow-sm hover:shadow-md overflow-hidden"
-              aria-label="Toggle theme"
+              aria-pressed={theme === 'dark'}
+              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+              className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white hover:border-gray-900 transition-all shadow-sm hover:shadow-md overflow-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-900/30"
             >
               <AnimatePresence mode="wait">
                 {theme === 'light' ? (
                   <motion.div
                     key="moon"
-                    initial={{ y: -20, opacity: 0, rotate: -90 }}
-                    animate={{ y: 0, opacity: 1, rotate: 0 }}
-                    exit={{ y: 20, opacity: 0, rotate: 90 }}
+                    initial={shouldReduceMotion ? { y: -20, opacity: 0 } : { y: -20, opacity: 0, rotate: -90 }}
+                    animate={shouldReduceMotion ? { y: 0, opacity: 1 } : { y: 0, opacity: 1, rotate: 0 }}
+                    exit={shouldReduceMotion ? { y: 20, opacity: 0 } : { y: 20, opacity: 0, rotate: 90 }}
                     transition={{ duration: 0.2 }}
                   >
                     <Moon size={16} strokeWidth={2} className="text-gray-900" />
@@ -399,18 +407,19 @@ export default memo(function Navbar() {
                 ) : (
                   <motion.div
                     key="sun"
-                    initial={{ y: -20, opacity: 0, rotate: -90 }}
-                    animate={{ y: 0, opacity: 1, rotate: 0 }}
-                    exit={{ y: 20, opacity: 0, rotate: 90 }}
+                    initial={shouldReduceMotion ? { y: -20, opacity: 0 } : { y: -20, opacity: 0, rotate: -90 }}
+                    animate={shouldReduceMotion ? { y: 0, opacity: 1 } : { y: 0, opacity: 1, rotate: 0 }}
+                    exit={shouldReduceMotion ? { y: 20, opacity: 0 } : { y: 20, opacity: 0, rotate: 90 }}
                     transition={{ duration: 0.2 }}
                   >
                     <Sun size={16} strokeWidth={2} className="text-gray-900" />
                   </motion.div>
                 )}
               </AnimatePresence>
+              <span className="sr-only">Toggle theme</span>
             </motion.button>
             <button ref={menuButtonRef} onClick={() => setMobileOpen(!mobileOpen)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 hover:bg-gray-100 transition-all duration-300"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 hover:bg-gray-100 transition-all duration-300 focus:outline-none focus:ring-0"
               aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={mobileOpen}
             >
@@ -436,13 +445,13 @@ export default memo(function Navbar() {
                 initial={shouldReduceMotion ? { x: 0 } : { x: '100%' }}
                 animate={{ x: 0 }}
                 exit={shouldReduceMotion ? { x: 0 } : { x: '100%' }}
-                transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 320, damping: 32, mass: 0.5 }}
+                transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 320, damping: 32, mass: 0.5, bounce: 0.05 }}
                 className="absolute right-0 top-0 h-full w-[85%] max-w-sm bg-white/95 backdrop-blur-md border-l border-gray-200 shadow-xl"
               >
                 <div className="flex items-center justify-between p-4">
                   <div className="font-semibold text-gray-900">Menu</div>
                   <button ref={closeButtonRef} onClick={handleClose}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 hover:bg-gray-100 transition-all duration-300"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 hover:bg-gray-100 transition-all duration-300 focus:outline-none focus:ring-0"
                     aria-label="Close menu"
                   >
                     <X size={18} strokeWidth={1.5} />

@@ -552,24 +552,25 @@ export default function PDFConversionTemplate({
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <motion.div 
-                className="w-12 h-12 rounded-full bg-gray-900 flex items-center justify-center"
+                className="w-6 h-6 sm:w-9 sm:h-9 rounded-full bg-tranparent border border-black dark:border-white/80 flex items-center justify-center"
                 whileHover={{ rotate: 5, scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400 }}
               >
-                <Icon size={24} className="text-white dark:text-black" strokeWidth={2} />
+                {/* use responsive Tailwind sizing so the svg scales on small screens */}
+                <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-black dark:text-white/80" strokeWidth={2} />
               </motion.div>
-              <h1 className="text-3xl font-bold text-gray-900 tracking-tight">{toolName}</h1>
+              <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">{toolName}</h1>
             </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowInfo(!showInfo)}
-              className="p-2 rounded-full border border-gray-300 hover:border-gray-900 transition-colors"
+              className="p-1 sm:p-2 rounded-full border border-gray-300 hover:border-gray-900 transition-colors"
             >
               <Info size={20} className="text-gray-600" />
             </motion.button>
           </div>
-          <p className="text-base text-gray-600 max-w-2xl">{description} • Secure & private</p>
+          <p className="text-sm sm:text-base text-gray-600 max-w-2xl">{description} • Secure & private</p>
           
           <AnimatePresence>
             {showInfo && (

@@ -8,6 +8,20 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Smooth theme transitions for colors, borders and shadows. Respects prefers-reduced-motion. */
+.light *,
+.dark * {
+  transition: background-color 250ms ease, color 250ms ease, border-color 250ms ease, box-shadow 250ms ease, fill 250ms ease, stroke 250ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .light *,
+  .dark * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
 /* Ensure light-mode 'bg-gray-50' is pure white for tools pages and similar sections */
 .bg-gray-50 {
   background-color: #ffffff;
