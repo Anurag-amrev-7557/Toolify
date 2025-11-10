@@ -5,7 +5,7 @@ import { ThemeProvider } from './context/ThemeContext'
 import ServiceWorkerRegistration from './components/ServiceWorkerRegistration'
 
 export const metadata = {
-  title: 'Toolify - All Your Tools in One Place',
+  title: 'Toolify',
   description: 'Fast, free, and integrated online utilities',
 }
 
